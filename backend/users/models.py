@@ -1,7 +1,11 @@
 from django.db import models
+from django.db.models.signals import post_save
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser, BaseUserManager
+from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
+
 
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -63,3 +67,30 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         db_table = 'customAuthUser'
         verbose_name = 'Custom Auth User'
         verbose_name_plural = 'Custom Auth Users'
+
+"""
+class Profile(models.Model):
+    def upload_avatar(self, filename):
+        return 'images/user_{0}/{1}'.format(self.user.id, filename) 
+
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    avatar = models.ImageField(_("Avatar"), upload_to=upload_avatar, blank=True, null=True)
+
+    class Meta:
+        db_table = "profile"
+        verbose_name = "profile"
+        verbose_name_plural = "profiles"
+
+    def __str__(self):
+        return self.user.username
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
+
+"""
