@@ -1,0 +1,4 @@
+
+*.pyc
+backend/db.sqlite3
+backend/users/migrations
