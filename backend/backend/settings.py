@@ -11,22 +11,27 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from decouple import config
+from decouple import Csv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '0k!e8=fzvi51&qe-s(c1g&^nxku9!c%-dsf8ylr=x^*@3p@%_f'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())  # Add Hosted Machine IP
 
+CORS_ORIGIN_WHITELIST = config('CORS_ORIGIN_WHITELIST', cast=Csv())
+CORS_ORIGIN_ALLOW_ALL = config('CORS_ORIGIN_ALLOW_ALL',  cast=bool)   #if True all origins will be accepted
 
 # Application definition
 
@@ -61,7 +66,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATE_DIR,],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -119,6 +124,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+#Email Settings
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com' # mail service smtp
+EMAIL_HOST_USER = config('EMAIL_HOST_USER') # email id
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD') #password
+EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_USE_TLS = True
+EMAIL_PASSWORD_RESET_SUBJECT = config("EMAIL_PASSWORD_RESET_SUBJECT") 
+EMAIL_ACCOUNT_ACTIVATION_SUBJECT = config("EMAIL_ACCOUNT_ACTIVATION_SUBJECT")    # Mail Subject for Account Activation Mail
+
+PASSWORD_RECOVER_URL = config('PASSWORD_RECOVER_URL')
+REDIRECT_ON_ACTIVATE = config("REDIRECT_ON_ACTIVATE") # on user activation redirect user to mentioned site{Site Created by React}
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/

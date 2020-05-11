@@ -18,10 +18,12 @@ from django.urls import path
 from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
+from users.views import activate
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'v1/', include('v1.urls')),
+    url('v1/', include('v1.urls')),
+    url(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', activate, name='activate'),
 ]
 
 if settings.DEBUG:

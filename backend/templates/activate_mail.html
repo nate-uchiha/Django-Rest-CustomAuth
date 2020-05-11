@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style media="screen">
+    </style>
+  </head>
+  <body style=" color:#000; font-family: Arial, Helvetica, sans-serif;
+                  line-height:1.8em;">
+                  <h2>Dear {{ user.username }} , </h2>
+                  <h2>Thank you for registering, please click on the link below to
+                  confirm your email address</h2>
+                  <a href=http://{{ domain }}{% url 'activate' uidb64=uid token=token %}><button> Confirm Email</button></a>
+                  <p><strong>&copy;Footer</strong></p>
+  </body>
+</html>

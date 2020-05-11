@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 
+from phonenumber_field.modelfields import PhoneNumberField
+
 UserModel = get_user_model()
 
 class UserRegisterSerializer(serializers.Serializer):
@@ -18,11 +20,13 @@ class UserRegisterSerializer(serializers.Serializer):
     )
     first_name = serializers.CharField(max_length=30, required=True)
     last_name = serializers.CharField(max_length=30, required=True)
-    phone_number = serializers.CharField()
+    phone_number = serializers.CharField(
+        validators=PhoneNumberField().validators
+    )
 
     def _validate_email(self, email):
         try:
-            user = UserModel.objects.get(email_iexact=email)
+            user = UserModel.objects.get(email__iexact=email)
             return False
         except UserModel.DoesNotExist:
             return True
@@ -32,6 +36,16 @@ class UserRegisterSerializer(serializers.Serializer):
             return True
         else:
             return False    
+        
+    def _validate_phone(self, phone_number):
+        try:
+            user = UserModel.objects.get(phone_number=phone_number)
+            return False
+        except UserModel.DoesNotExist:
+            return True
 
-    def _create_user(data):
-        print("data is create_user: ", data)
+    def _create_user(self, data):
+        user = UserModel.objects.create_user(data['email'], data['first_name'], data['last_name'], data['password1'])
+        user.phone_number = data['phone_number']
+        user.save()
+        return user

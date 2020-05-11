@@ -34,6 +34,7 @@ class CustomUserManager(BaseUserManager):
         user.is_admin = True
         user.is_superuser = True
         user.is_active = True
+        user.is_email_verified = True
         user.save(using=self._db)
         return user
 
@@ -43,7 +44,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         )
     first_name = models.CharField(_("First Name"), max_length=30)
     last_name = models.CharField(_("Last Name"), max_length=30)
-    phone_number = PhoneNumberField(_("Contact Number"), blank=True, null=True)
+    phone_number = PhoneNumberField(_("Contact Number"), blank=True, null=True, unique=True)
     is_email_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
