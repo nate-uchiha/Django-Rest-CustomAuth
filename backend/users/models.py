@@ -41,9 +41,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(
             verbose_name='email_address', max_length=255, unique=True
         )
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
-    phone_number = PhoneNumberField(blank=True, null=True)
+    first_name = models.CharField(_("First Name"), max_length=30)
+    last_name = models.CharField(_("Last Name"), max_length=30)
+    phone_number = PhoneNumberField(_("Contact Number"), blank=True, null=True)
     is_email_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
@@ -68,10 +68,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         verbose_name = 'Custom Auth User'
         verbose_name_plural = 'Custom Auth Users'
 
-"""
+
 class Profile(models.Model):
     def upload_avatar(self, filename):
-        return 'images/user_{0}/{1}'.format(self.user.id, filename) 
+        return 'images/user_{0}/{1)_{2}'.format(self.user.id, timezone.now().timestamp(), filename) 
 
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     avatar = models.ImageField(_("Avatar"), upload_to=upload_avatar, blank=True, null=True)
@@ -82,15 +82,13 @@ class Profile(models.Model):
         verbose_name_plural = "profiles"
 
     def __str__(self):
-        return self.user.username
+        return self.user.email
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=CustomUser)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=CustomUser)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
-
-"""
