@@ -49,3 +49,12 @@ class UserRegisterSerializer(serializers.Serializer):
         user.phone_number = data['phone_number']
         user.save()
         return user
+
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=255, allow_blank=False, required=True)
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        style={'input_type': 'password', 'placeholder': 'Password'}
+    )

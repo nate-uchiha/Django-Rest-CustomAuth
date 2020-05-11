@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 from decouple import config
 from decouple import Csv
+from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -85,10 +86,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ]
 }
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -100,9 +105,8 @@ DATABASES = {
     }
 }
 
-AUTHENTICATION_BACKENDS = (
-       'django.contrib.auth.backends.ModelBackend',
-)
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.AllowAllUsersModelBackend']
+
 
 AUTH_USER_MODEL = 'users.CustomUser'
 

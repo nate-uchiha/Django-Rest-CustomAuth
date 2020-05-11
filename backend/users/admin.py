@@ -10,12 +10,12 @@ class CustomUserUserAdmin(UserAdmin):
     form = CustomUserChangeForm
     add_form = CustomUserCreationForm
     
-    list_display = ('email', 'first_name', 'last_name', 'phone_number', 'is_email_verified', 'is_active', 'is_admin',)
+    list_display = ('email', 'first_name', 'last_name', 'phone_number', 'is_email_verified', 'is_active', 'is_admin', 'last_login')
     list_filter = ('is_admin',)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name', 'phone_number')}),
-        ('Permissions', {'fields': ('is_admin', 'is_superuser', 'is_active', 'user_permissions',),}),
+        ('Permissions', {'fields': ('is_admin', 'is_superuser', 'is_email_verified', 'is_active', 'user_permissions',),}),
         ('Groups', {'fields': ('groups', ),}),
     )
 

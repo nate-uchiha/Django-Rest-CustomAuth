@@ -7,6 +7,8 @@ from django.contrib.auth import get_user_model
 
 from .tokens import accountValidationToken
 
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from smtplib import SMTPException
 import socket
 
@@ -61,3 +63,11 @@ def activate_account(uidb64, token):
         return True
     else:
         return False
+
+
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
