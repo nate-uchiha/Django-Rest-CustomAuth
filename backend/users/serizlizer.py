@@ -1,8 +1,11 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 
 from rest_framework import serializers
 
 from phonenumber_field.modelfields import PhoneNumberField
+
+from .models import Profile
 
 UserModel = get_user_model()
 
@@ -58,3 +61,21 @@ class LoginSerializer(serializers.Serializer):
         required=True,
         style={'input_type': 'password', 'placeholder': 'Password'}
     )
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ('name',)
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('avatar',)
+
+class UserDetailsSerializer(serializers.ModelSerializer):
+    groups = GroupSerializer(many=True, read_only=True)
+    profile = ProfileSerializer()
+    class Meta:
+        model = UserModel
+        fields = ('email', 'first_name', 'last_name', 'last_login', 'groups', 'profile')

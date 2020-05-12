@@ -3,11 +3,12 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
 
-from rest_framework.generics import GenericAPIView
 from rest_framework import permissions
+from rest_framework.generics import GenericAPIView
+from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from .serizlizer import UserRegisterSerializer, LoginSerializer
+from .serizlizer import UserRegisterSerializer, LoginSerializer, UserDetailsSerializer
 from .utils import send_mail_to_user, activate_account, get_tokens_for_user
 
 # Create your views here.
@@ -129,4 +130,20 @@ class LoginView(GenericAPIView):
                 'errors': serializer.errors
             })
         return response
-        
+
+
+class UserDetailsView(GenericAPIView):
+    serializer_class = UserDetailsSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def get(self, request, *args, **kwargs):
+        serializer = self.serializer_class(request.user)
+        serialized_data = serializer.data
+        return Response({
+            "email": serialized_data['email'],
+            "first_name": serialized_data['first_name'],
+            "last_name": serialized_data['last_name'],
+            "last_login": serialized_data['last_login'],
+            "groups": serialized_data['groups'],
+            "profile": serialized_data['profile']
+        })
