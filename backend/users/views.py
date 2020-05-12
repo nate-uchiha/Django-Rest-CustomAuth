@@ -100,11 +100,11 @@ class LoginView(GenericAPIView):
                         response = Response({
                             'status': 'success',
                             'access_token': token_data['access'],
-                            'refresh_token': token_data['refresh']
+                            'refresh_token': token_data['refresh'],
                             'email': user.email,
                             'first_name': user.first_name,
                             'last_name': user.last_name,
-                            'phone_number': user.phone_number,
+                            'phone_number': str(user.phone_number),
                             'last_login': user.last_login
                         })
                     else:
