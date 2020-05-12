@@ -8,8 +8,12 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from .serizlizer import UserRegisterSerializer, LoginSerializer, UserDetailsSerializer
-from .utils import send_mail_to_user, activate_account, get_tokens_for_user
+from .serizlizer import (
+    UserRegisterSerializer, LoginSerializer, UserDetailsSerializer, PasswordResetSerializer, PasswordResetConfirmSerializer
+)
+from .utils import (
+    send_mail_to_user, activate_account, get_tokens_for_user, send_password_reset_mail, validate_uid, validate_token, _validate_password
+)
 
 # Create your views here.
 class UserRegisterView(GenericAPIView):
@@ -130,6 +134,78 @@ class LoginView(GenericAPIView):
                 'errors': serializer.errors
             })
         return response
+
+
+class PasswordResetView(GenericAPIView):
+    serializer_class = PasswordResetSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            user = serializer._validate_email(serializer.validated_data['email'])
+            if user is not None:
+                if send_password_reset_mail(user):
+                    response = Response({
+                        'status': 'success',
+                        'message': "Password Reset mail has been sent successfully"
+                    })
+                else:
+                    response = Response({
+                        'status': 'fail',
+                        'message': "Problems in sending mail to the user. Please contact admininstrator!"
+                    })
+            else:
+                response = Response({
+                    'status': 'fail',
+                    'message': "User with this email does not exists"
+                })
+        else:
+            response = Response({
+                'status': 'fail',
+                'message': "Please provide proper email address"
+            })
+        return response
+
+
+class PasswordResetConfimView(GenericAPIView):
+    serializer_class = PasswordResetConfirmSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            validated_data = serializer.validated_data
+            print("PasswordResetConfimView", validated_data)
+            user = validate_uid(token['uidb'])
+            if user is not None:
+                if validate_token(user, validated_data['token']):
+                    if _validate_password(validated_data['new_password1'], validated_data['new_password2']):
+                        user.set_password(validated_data['new_password1'])
+                        user.save()
+                        response = Response({
+                            'status': "Success",
+                            "message": "Password has been reset successfully"
+                        })
+                    else:
+                        response = Response({
+                            'status': 'fail',
+                            'message': "Passwords did not match!!!"
+                        })
+                else:
+                    response = Response({
+                        'status': 'fail',
+                        'message': "Invalid Token"
+                    })
+            else:
+                response = Response({
+                    'status': 'fail',
+                    'message': "Invalid Uid"
+                })
+            response = Response(serializer.data) 
+        else:
+            response = Response({
+                'status': 'fail',
+                'message': 'Validation Error'
+            })
 
 
 class UserDetailsView(GenericAPIView):

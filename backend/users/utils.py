@@ -1,9 +1,10 @@
 from django.conf import settings
 from django.utils.encoding import force_text, force_bytes
-from django.utils.http import urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives, BadHeaderError
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
 from .tokens import accountValidationToken
 
@@ -71,3 +72,40 @@ def get_tokens_for_user(user):
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
+
+def send_password_reset_mail(user):
+    recipients = [user.email]
+    subject = settings.EMAIL_PASSWORD_RESET_SUBJECT
+    from_email = settings.EMAIL_HOST_USER
+    password_reset = PasswordResetTokenGenerator()
+
+    print("domain: ",settings.PASSWORD_RECOVER_URL)
+    print("user: ",user)
+    print("token: ",password_reset.make_token(user))
+    print("uidb: ",urlsafe_base64_encode(force_bytes(user.pk)))
+    
+    html_content = render_to_string(
+        'password_reset_mail.html', {
+            'domain': settings.PASSWORD_RECOVER_URL,
+            'user': user, 
+            'token': password_reset.make_token(user),
+            'uidb': urlsafe_base64_encode(force_bytes(user.pk)),
+        }
+    )
+    return custom_send_mail(subject, recipients, html_content)
+
+def validate_uid(uidb):
+    user_model = get_user_model()
+    try:
+        uid = force_text(urlsafe_base64_decode(uidb))
+        user = user_model.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, UserModel.DoesNotExist):
+        user = None
+    return user
+
+def validate_token(user, token):
+    password_reset = PasswordResetTokenGenerator()
+    return password_reset.check_token(user, token)
+
+def _validate_password(password1, password2):
+    return password1 == password2

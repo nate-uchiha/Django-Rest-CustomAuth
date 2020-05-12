@@ -10,6 +10,9 @@ from .models import Profile
 UserModel = get_user_model()
 
 class UserRegisterSerializer(serializers.Serializer):
+    """
+    Serializer for Registration of User
+    """
     email = serializers.EmailField(max_length=255, allow_blank=False, required=True)
     password1 = serializers.CharField(
         write_only=True,
@@ -55,6 +58,9 @@ class UserRegisterSerializer(serializers.Serializer):
 
 
 class LoginSerializer(serializers.Serializer):
+    """
+    Serializer for Logging In of User
+    """
     email = serializers.EmailField(max_length=255, allow_blank=False, required=True)
     password = serializers.CharField(
         write_only=True,
@@ -63,17 +69,64 @@ class LoginSerializer(serializers.Serializer):
     )
 
 
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def _validate_email(self, email):
+        try:
+            user = UserModel.objects.get(email__iexact=email)
+        except UserModel.DoesNotExist:
+            user = None
+        return user
+
+    
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    """
+    Serializer for resesting password.
+    """
+    new_password1 = serializers.CharField(
+        write_only=True,
+        required=True,
+        style={'input_type': 'password', 'placeholder': 'New Password'}
+    )
+    new_password2 = serializers.CharField(
+        write_only=True,
+        required=True,
+        style={'input_type': 'password', 'placeholder': 'New Password Confirm'}
+    )
+    new_password2 = serializers.CharField(max_length=128)
+    uidb = serializers.CharField()
+    token = serializers.CharField()
+
+    def _validate_password(self, password1, password2):
+        if password1 == password2:
+            return True
+        else:
+            return False
+
+
 class GroupSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Groups
+    """
     class Meta:
         model = Group
         fields = ('name',)
 
+
 class ProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Profile
+    """
     class Meta:
         model = Profile
         fields = ('avatar',)
 
+
 class UserDetailsSerializer(serializers.ModelSerializer):
+    """
+    Serializer for User Details
+    """
     groups = GroupSerializer(many=True, read_only=True)
     profile = ProfileSerializer()
     class Meta:
