@@ -72,7 +72,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 class Profile(models.Model):
     def upload_avatar(self, filename):
-        return 'images/user_{0}/{1)_{2}'.format(self.user.id, timezone.now().timestamp(), filename) 
+        return 'images/user_{0}/{1}_{2}'.format(self.user.id, timezone.now().timestamp(), filename) 
 
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     avatar = models.ImageField(_("Avatar"), upload_to=upload_avatar, blank=True, null=True)
